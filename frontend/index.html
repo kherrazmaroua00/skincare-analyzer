@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>SkinSense — Know Your Skincare</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #F7F5EF;
+    --card: #FFFFFF;
+    --card-soft: #F1EFE6;
+    --ink: #2A2B24;
+    --ink-muted: #6B6C61;
+    --border: #E4E1D4;
+    --green-deep: #33402A;
+    --green: #4B5C3C;
+    --green-soft: #E7ECDE;
+    --amber-soft: #F3E9D6;
+    --amber-ink: #8A6A2E;
+    --red-soft: #F3E1DD;
+    --red-ink: #9B4A3A;
+    --radius: 14px;
+    --radius-sm: 8px;
+  }
+  *{ box-sizing: border-box; }
+  html,body{ margin:0; padding:0; }
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,h2,h3{ font-family: 'Fraunces', serif; font-weight: 500; margin: 0; }
+  a{ color: inherit; text-decoration: none; }
+
+  .wrap{ max-width: 1040px; margin: 0 auto; padding: 0 32px; }
+
+  /* Nav */
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 28px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .logo{ font-family:'Fraunces', serif; font-size: 20px; font-weight: 600; letter-spacing: -0.01em; }
+  .nav-links{ display:flex; gap: 36px; font-size: 14px; color: var(--ink-muted); }
+  .nav-links a.active{ color: var(--ink); font-weight: 500; }
+  .nav-right{ font-size: 14px; color: var(--ink-muted); border:1px solid var(--border); padding:7px 16px; border-radius: 999px; }
+
+  /* Hero / Analyzer */
+  .hero{ text-align:center; padding: 72px 0 12px; }
+  .hero h1{ font-size: 46px; letter-spacing: -0.01em; }
+  .hero p{ color: var(--ink-muted); max-width: 480px; margin: 18px auto 0; line-height: 1.6; font-size: 15px; }
+
+  .panel{
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 22px;
+    max-width: 720px;
+    margin: 40px auto 0;
+  }
+  textarea{
+    width: 100%;
+    min-height: 110px;
+    border: none;
+    outline: none;
+    resize: vertical;
+    font-family: 'Inter', sans-serif;
+    font-size: 14.5px;
+    color: var(--ink);
+    background: transparent;
+    line-height: 1.6;
+  }
+  textarea::placeholder{ color: #B7B4A6; }
+  .panel-footer{
+    display:flex; align-items:center; justify-content:space-between;
+    border-top: 1px solid var(--border);
+    margin-top: 14px; padding-top: 16px;
+  }
+  .hint{ font-size: 12.5px; color: var(--ink-muted); }
+  .panel-actions{ display:flex; gap: 12px; align-items:center; }
+  .btn-ghost{
+    font-size: 13.5px; color: var(--ink-muted);
+    background: none; border: none; cursor: pointer;
+    font-family: 'Inter', sans-serif;
+  }
+  .btn-ghost:hover{ color: var(--ink); }
+  .btn-primary{
+    background: var(--green-deep);
+    color: #fff;
+    border: none;
+    padding: 11px 22px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    display:flex; align-items:center; gap:8px;
+    transition: background .15s ease;
+  }
+  .btn-primary:hover{ background: #26301F; }
+  .btn-primary:disabled{ opacity: .55; cursor: default; }
+
+  .error-box{
+    max-width: 720px; margin: 16px auto 0;
+    background: var(--red-soft); color: var(--red-ink);
+    border-radius: var(--radius-sm); padding: 14px 18px; font-size: 13.5px;
+    display:none;
+  }
+
+  /* Results */
+  #results{ display:none; padding: 40px 0 80px; }
+  .eyebrow{ font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--ink-muted); margin-bottom: 6px; }
+  .results-title{ font-size: 32px; margin-bottom: 8px; }
+  .results-sub{ color: var(--ink-muted); font-size: 14.5px; max-width: 640px; line-height: 1.6; }
+  .back-link{ font-size: 13.5px; color: var(--ink-muted); display:inline-block; margin-bottom: 22px; cursor:pointer; }
+  .back-link:hover{ color: var(--ink); }
+
+  .assessment-card{
+    background: var(--card); border:1px solid var(--border); border-radius: var(--radius);
+    padding: 24px; margin-top: 28px;
+  }
+  .assessment-head{ display:flex; align-items:center; gap:8px; font-size:14px; font-weight:600; margin-bottom: 10px; }
+  .assessment-head .dot{ width:8px; height:8px; border-radius:50%; background: var(--green); }
+  .assessment-body{ font-size: 14.5px; line-height: 1.7; color: #4B4C43; }
+  .assessment-tags{ display:flex; gap:10px; margin-top:16px; flex-wrap:wrap; }
+  .tag{
+    background: var(--card-soft); border-radius: var(--radius-sm);
+    padding: 10px 14px; font-size: 12.5px; color: var(--ink-muted);
+  }
+  .tag b{ display:block; color: var(--ink); font-size: 13.5px; font-weight:500; margin-bottom:2px; }
+
+  .section-title{ font-size: 20px; margin: 40px 0 16px; }
+
+  .type-grid{ display:grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .type-card{
+    background: var(--card); border:1px solid var(--border); border-radius: var(--radius);
+    padding: 20px 16px; text-align:left;
+  }
+  .type-card .icon{ font-size: 20px; margin-bottom: 14px; }
+  .type-card .name{ font-size: 14.5px; font-weight: 500; margin-bottom: 12px; }
+  .pill{
+    display:inline-block; font-size: 11.5px; font-weight: 500;
+    padding: 4px 10px; border-radius: 999px;
+  }
+  .pill.suitable{ background: var(--green-soft); color: var(--green-deep); }
+  .pill.caution{ background: var(--amber-soft); color: var(--amber-ink); }
+
+  .two-col{ display:grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .list-card{
+    background: var(--card); border:1px solid var(--border); border-radius: var(--radius);
+    padding: 22px;
+  }
+  .list-card h3{ font-size: 15px; margin-bottom: 16px; }
+  .list-row{ display:flex; gap: 12px; padding: 10px 0; border-top: 1px solid var(--border); }
+  .list-row:first-of-type{ border-top: none; padding-top: 0; }
+  .list-row .bullet{ width: 6px; height: 6px; border-radius: 50%; background: var(--green); margin-top: 7px; flex-shrink:0; }
+  .list-row .bullet.warn{ background: var(--red-ink); }
+  .list-row .content b{ display:block; font-size: 13.5px; font-weight: 500; margin-bottom: 2px; }
+  .list-row .content span{ font-size: 12.5px; color: var(--ink-muted); line-height:1.5; }
+  .empty-note{ font-size: 13px; color: var(--ink-muted); font-style: italic; }
+
+  footer{ border-top: 1px solid var(--border); padding: 28px 0; margin-top: 40px; }
+  .footer-row{ display:flex; align-items:center; justify-content:space-between; font-size: 12.5px; color: var(--ink-muted); }
+  .footer-links{ display:flex; gap: 22px; }
+
+  @media (max-width: 720px){
+    .type-grid{ grid-template-columns: repeat(2, 1fr); }
+    .two-col{ grid-template-columns: 1fr; }
+    .nav-links{ display:none; }
+    .hero h1{ font-size: 32px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <nav>
+    <div class="logo">SkinSense</div>
+    <div class="nav-links">
+      <a href="#" onclick="showAnalyzer(); return false;">Home</a>
+      <a href="#" class="active" onclick="showAnalyzer(); return false;">Analyzer</a>
+      <a href="#">Saved Products</a>
+      <a href="#">About</a>
+    </div>
+    <div class="nav-right">Profile</div>
+  </nav>
+</div>
+
+<div id="analyzer-view">
+  <div class="wrap">
+    <div class="hero">
+      <h1>Know Your Skincare.</h1>
+      <p>Understand what's inside your skincare products and discover what they're best suited for. Paste your ingredient list below to begin a detailed analysis.</p>
+    </div>
+
+    <div class="panel">
+      <textarea id="ingredients-input" placeholder="Paste your ingredient list here…&#10;Example: Water, Glycerin, Niacinamide, Cetearyl Alcohol, Caprylic/Capric Triglyceride…"></textarea>
+      <div class="panel-footer">
+        <div class="hint" id="char-hint">No ingredients entered yet</div>
+        <div class="panel-actions">
+          <button class="btn-ghost" onclick="trySample()">Try a sample product</button>
+          <button class="btn-primary" id="analyze-btn" onclick="analyzeProduct()">Analyze Product →</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="error-box" id="error-box"></div>
+  </div>
+</div>
+
+<div id="results">
+  <div class="wrap">
+    <span class="back-link" onclick="showAnalyzer()">← Back to analyzer</span>
+    <div class="eyebrow">Analysis Results</div>
+    <h2 class="results-title" id="result-title">Your Product</h2>
+    <p class="results-sub" id="result-sub"></p>
+
+    <div class="assessment-card">
+      <div class="assessment-head"><span class="dot"></span> Overall Assessment</div>
+      <div class="assessment-body" id="assessment-text"></div>
+      <div class="assessment-tags" id="assessment-tags"></div>
+    </div>
+
+    <h3 class="section-title">Skin Type Compatibility</h3>
+    <div class="type-grid" id="type-grid"></div>
+
+    <h3 class="section-title">Ingredient Insights</h3>
+    <div class="two-col">
+      <div class="list-card">
+        <h3>Active Ingredients</h3>
+        <div id="actives-list"></div>
+      </div>
+      <div class="list-card">
+        <h3>Irritant Flags</h3>
+        <div id="irritants-list"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap footer-row">
+    <div>SkinSense</div>
+    <div>© 2026 SkinSense. Ingredient analysis is informational only and does not constitute medical advice.</div>
+    <div class="footer-links">
+      <a href="#">Privacy</a><a href="#">Terms</a><a href="#">Contact</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+const API_URL = "http://127.0.0.1:8000/analyze";
+
+const SAMPLE = "Water, Glycerin, Niacinamide, Cetearyl Alcohol, Caprylic/Capric Triglyceride, Squalane, Retinol, Ascorbic Acid, Fragrance (Parfum), Sodium Hyaluronate, Panthenol, Tocopherol, Phenoxyethanol";
+
+const SKIN_TYPES = [
+  { key: "Oily", icon: "○", label: "Oily" },
+  { key: "Dry", icon: "◑", label: "Dry" },
+  { key: "Combination", icon: "◐", label: "Combination" },
+  { key: "Sensitive", icon: "◈", label: "Sensitive" },
+];
+
+const input = document.getElementById("ingredients-input");
+const charHint = document.getElementById("char-hint");
+input.addEventListener("input", () => {
+  const count = input.value.split(",").map(s => s.trim()).filter(Boolean).length;
+  charHint.textContent = count > 0 ? `${count} ingredient${count === 1 ? "" : "s"} detected` : "No ingredients entered yet";
+});
+
+function trySample(){
+  input.value = SAMPLE;
+  input.dispatchEvent(new Event("input"));
+}
+
+function showAnalyzer(){
+  document.getElementById("analyzer-view").style.display = "block";
+  document.getElementById("results").style.display = "none";
+}
+
+function showError(msg){
+  const box = document.getElementById("error-box");
+  box.textContent = msg;
+  box.style.display = "block";
+}
+function clearError(){
+  document.getElementById("error-box").style.display = "none";
+}
+
+async function analyzeProduct(){
+  clearError();
+  const raw = input.value.trim();
+  if(!raw){
+    showError("Paste an ingredient list before analyzing.");
+    return;
+  }
+
+  const btn = document.getElementById("analyze-btn");
+  btn.disabled = true;
+  btn.textContent = "Analyzing…";
+
+  try{
+    const res = await fetch(API_URL, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ingredients: raw })
+    });
+
+    if(!res.ok){
+      throw new Error(`Server responded with ${res.status}`);
+    }
+
+    const data = await res.json();
+    renderResults(data, raw);
+
+  }catch(err){
+    showError("Couldn't reach the analyzer API. Make sure your backend is running at " + API_URL + ".");
+    console.error(err);
+  }finally{
+    btn.disabled = false;
+    btn.textContent = "Analyze Product →";
+  }
+}
+
+function renderResults(data, rawIngredients){
+  const skinTypes = data.skin_type || [];
+  const benefits = data.benefits || [];
+  const actives = data.matched_actives || [];
+  const irritants = data.irritant_flags || [];
+  const ingredientCount = rawIngredients.split(",").map(s => s.trim()).filter(Boolean).length;
+
+  document.getElementById("result-title").textContent = "Your Product";
+  document.getElementById("result-sub").textContent =
+    `Analysis based on ${ingredientCount} listed ingredient${ingredientCount === 1 ? "" : "s"}.`;
+
+  // Overall assessment — built from what the models actually returned, not fabricated
+  const typeText = skinTypes.length
+    ? `well suited for ${formatList(skinTypes.map(s => s.toLowerCase()))} skin`
+    : "not strongly matched to a specific skin type based on its ingredients";
+  const benefitText = benefits.length
+    ? ` and is associated with ${formatList(benefits.map(b => b.toLowerCase()))}`
+    : "";
+  const irritantNote = irritants.length
+    ? ` It contains ${irritants.length} ingredient${irritants.length === 1 ? "" : "s"} flagged for potential sensitivity — a patch test is recommended.`
+    : " No known irritants were flagged from our reference ingredients.";
+
+  document.getElementById("assessment-text").textContent =
+    `Based on its ingredient list, this product appears ${typeText}${benefitText}.${irritantNote}`;
+
+  const tagsEl = document.getElementById("assessment-tags");
+  tagsEl.innerHTML = "";
+  if(benefits.length){
+    tagsEl.innerHTML += `<div class="tag"><b>${benefits.slice(0,2).join(" · ")}</b>Predicted benefits</div>`;
+  }
+  tagsEl.innerHTML += `<div class="tag"><b>${actives.length} matched</b>Active ingredients found</div>`;
+  tagsEl.innerHTML += `<div class="tag"><b>${irritants.length} flagged</b>Potential irritants</div>`;
+
+  // Skin type compatibility grid
+  const grid = document.getElementById("type-grid");
+  grid.innerHTML = "";
+  SKIN_TYPES.forEach(t => {
+    const isSuitable = skinTypes.includes(t.key);
+    grid.innerHTML += `
+      <div class="type-card">
+        <div class="icon">${t.icon}</div>
+        <div class="name">${t.label}</div>
+        <span class="pill ${isSuitable ? "suitable" : "caution"}">${isSuitable ? "Suitable" : "Less suited"}</span>
+      </div>`;
+  });
+
+  // Active ingredients
+  const activesEl = document.getElementById("actives-list");
+  if(actives.length === 0){
+    activesEl.innerHTML = `<p class="empty-note">No known active ingredients matched from our reference list.</p>`;
+  }else{
+    activesEl.innerHTML = dedupeByIngredient(actives).map(a => `
+      <div class="list-row">
+        <div class="bullet"></div>
+        <div class="content">
+          <b>${a.ingredient}</b>
+          <span>Good for: ${a.good_for.join(", ")}</span>
+        </div>
+      </div>`).join("");
+  }
+
+  // Irritant flags
+  const irritantsEl = document.getElementById("irritants-list");
+  if(irritants.length === 0){
+    irritantsEl.innerHTML = `<p class="empty-note">No known irritants matched from our reference list.</p>`;
+  }else{
+    irritantsEl.innerHTML = dedupeByIngredient(irritants).map(f => `
+      <div class="list-row">
+        <div class="bullet warn"></div>
+        <div class="content">
+          <b>${f.ingredient}</b>
+          <span>${f.avoid_reasons.join(", ")}</span>
+        </div>
+      </div>`).join("");
+  }
+
+  document.getElementById("analyzer-view").style.display = "none";
+  document.getElementById("results").style.display = "block";
+  window.scrollTo(0,0);
+}
+
+function dedupeByIngredient(arr){
+  const seen = new Set();
+  return arr.filter(item => {
+    if(seen.has(item.ingredient)) return false;
+    seen.add(item.ingredient);
+    return true;
+  });
+}
+
+function formatList(arr){
+  if(arr.length === 1) return arr[0];
+  if(arr.length === 2) return arr.join(" and ");
+  return arr.slice(0,-1).join(", ") + ", and " + arr[arr.length-1];
+}
+</script>
+
+</body>
+</html>

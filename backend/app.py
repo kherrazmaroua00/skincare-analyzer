@@ -7,6 +7,15 @@ import numpy as np
 
 app = FastAPI(title="Skincare Ingredient Analyzer API")
 
+from fastapi.middleware.cors import CORSMiddleware
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
 KNOWN_COMMA_INGREDIENTS = ['1,2-Hexanediol', '1,3-Propanediol', '2,3-Butanediol', '1,10-Decanediol']
 
 def smart_split_ingredients(text):
