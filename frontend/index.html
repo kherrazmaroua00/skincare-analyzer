@@ -252,7 +252,11 @@
 </footer>
 
 <script>
-const API_URL = "http://127.0.0.1:8000/analyze";
+const API_URLS = [
+  "https://skincare-api.onrender.com/analyze",
+  "http://localhost:8000/analyze",
+  "http://127.0.0.1:8000/analyze"
+];
 
 const SAMPLE = "Water, Glycerin, Niacinamide, Cetearyl Alcohol, Caprylic/Capric Triglyceride, Squalane, Retinol, Ascorbic Acid, Fragrance (Parfum), Sodium Hyaluronate, Panthenol, Tocopherol, Phenoxyethanol";
 
@@ -301,24 +305,38 @@ async function analyzeProduct(){
   btn.disabled = true;
   btn.textContent = "Analyzing…";
 
-  try{
-    const res = await fetch(API_URL, {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ ingredients: raw })
-    });
+  let lastError = null;
 
-    if(!res.ok){
-      throw new Error(`Server responded with ${res.status}`);
+  try{
+    for (const endpoint of API_URLS) {
+      try {
+        const res = await fetch(endpoint, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ ingredients: raw })
+        });
+
+        if (!res.ok) {
+          lastError = new Error(`Server responded with ${res.status} at ${endpoint}`);
+          continue;
+        }
+
+        const data = await res.json();
+        renderResults(data, raw);
+        return;
+      } catch (err) {
+        lastError = err;
+      }
     }
 
-    const data = await res.json();
-    renderResults(data, raw);
-
-  }catch(err){
-    showError("Couldn't reach the analyzer API. Make sure your backend is running at " + API_URL + ".");
+    throw lastError || new Error("No valid analyzer backend was reachable");
+  } catch (err) {
+    showError(
+      "Couldn't reach the analyzer API. Start your backend and confirm the endpoint is available: " +
+      API_URLS.join(", ")
+    );
     console.error(err);
-  }finally{
+  } finally {
     btn.disabled = false;
     btn.textContent = "Analyze Product →";
   }
@@ -335,7 +353,6 @@ function renderResults(data, rawIngredients){
   document.getElementById("result-sub").textContent =
     `Analysis based on ${ingredientCount} listed ingredient${ingredientCount === 1 ? "" : "s"}.`;
 
-  // Overall assessment — built from what the models actually returned, not fabricated
   const typeText = skinTypes.length
     ? `well suited for ${formatList(skinTypes.map(s => s.toLowerCase()))} skin`
     : "not strongly matched to a specific skin type based on its ingredients";
@@ -357,7 +374,6 @@ function renderResults(data, rawIngredients){
   tagsEl.innerHTML += `<div class="tag"><b>${actives.length} matched</b>Active ingredients found</div>`;
   tagsEl.innerHTML += `<div class="tag"><b>${irritants.length} flagged</b>Potential irritants</div>`;
 
-  // Skin type compatibility grid
   const grid = document.getElementById("type-grid");
   grid.innerHTML = "";
   SKIN_TYPES.forEach(t => {
@@ -370,7 +386,6 @@ function renderResults(data, rawIngredients){
       </div>`;
   });
 
-  // Active ingredients
   const activesEl = document.getElementById("actives-list");
   if(actives.length === 0){
     activesEl.innerHTML = `<p class="empty-note">No known active ingredients matched from our reference list.</p>`;
@@ -385,7 +400,6 @@ function renderResults(data, rawIngredients){
       </div>`).join("");
   }
 
-  // Irritant flags
   const irritantsEl = document.getElementById("irritants-list");
   if(irritants.length === 0){
     irritantsEl.innerHTML = `<p class="empty-note">No known irritants matched from our reference list.</p>`;
