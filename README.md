@@ -128,4 +128,4 @@ Water, Glycerin, Niacinamide, Cetearyl Alcohol, Retinol, Ascorbic Acid, Fragranc
 
 ## Author
 
-Built by [Maroua Kherraz] as a portfolio project applying classic ML (scikit-learn) to a real-world, imperfect dataset — end to end, from data cleaning through a deployed web app.
+Built by Maroua Kherraz as a portfolio project applying classic ML (scikit-learn) to a real-world, imperfect dataset — end to end, from data cleaning through a deployed web app.
